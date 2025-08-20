@@ -36,4 +36,29 @@ jobs:
               with:
                 name: build_folder
                 path: ./build
+    Deploy:
+        needs: Build
+        runs-on: self-hosted
+        steps:
+            - name: Checkout the repository
+              uses: actions/checkout@v3
+            - name: Receive the build artifact
+              uses: actions/download-artifact@v4
+              with:
+                name: build_folder
+                path: ./build
+            - name: Show the artifact
+              run: |
+                ls -a
+                echo "Build artifact received"
+            - name: Install package
+              run: npm install
+
+            - name: Run the application
+              run: |
+                ls -a
+                pm2 status
+                pm2 delete node-app || true
+                pm2 start "npm start" --name "node-app"
+                pm2 save
             
