@@ -14,30 +14,19 @@ jobs:
             - name: Install Packages
               run: npm install
             - name: Test the application
-              run: npm run check
-            
-    Build:
-        needs: Test
-        runs-on: ubuntu-latest
-        steps:
-            - name: Checkout the repository
-              uses: actions/checkout@v3
-            - name: InStall Node js
-              uses: actions/setup-node@v4
-              with:
-                node-version: '22'
-            - name: Build Application
               run: |
-                mkdir build
-                cd build
-                echo "Build successful"> build.txt
-            - name: Upload build artifact
+                npm run check > test-result.txt
+                echo "Tests completed"
+
+            - name: Upload Test Results
               uses: actions/upload-artifact@v4
               with:
-                name: build_folder
-                path: ./build
+                name: test-result
+                path: test-results.txt
+            
+   
     Deploy:
-        needs: Build
+        needs: Test
         runs-on: self-hosted
         steps:
             - name: Checkout the repository
@@ -45,12 +34,15 @@ jobs:
             - name: Receive the build artifact
               uses: actions/download-artifact@v4
               with:
-                name: build_folder
-                path: ./build
+                name: test-result
+                path: ./test-results
             - name: Show the artifact
               run: |
                 ls -a
                 echo "Build artifact received"
+                echo "------------------------"
+                cat ./test-results/test-results.txt
+                
             - name: Install package
               run: npm install
 
