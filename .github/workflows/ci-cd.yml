@@ -43,6 +43,11 @@ jobs:
                 echo "------------------------"
                 cat ./test-results/test-results.txt
 
+            - name: InStall Node js
+              uses: actions/setup-node@v4
+              with:
+                node-version: '22'
+
             - name: Install package
               run: npm install
 
