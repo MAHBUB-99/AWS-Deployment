@@ -2,60 +2,61 @@ name: Deployment on AWS
 on: [push]
 
 jobs:
-    Test:
-        runs-on: ubuntu-latest
-        steps:
-            - name: Checkout the repository
-              uses: actions/checkout@v3
-            - name: InStall Node js
-              uses: actions/setup-node@v4
-              with:
-                node-version: '22'
-            - name: Install Packages
-              run: npm install
-            - name: Test the application
-              run: |
-                npm run check > test-results.txt
-                echo "Tests completed"
+  Test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v3
 
-            - name: Upload Test Results
-              uses: actions/upload-artifact@v4
-              with:
-                name: test-results
-                path: test-results.txt
-            
-   
-    Deploy:
-        needs: Test
-        runs-on: self-hosted
-        steps:
-            - name: Checkout the repository
-              uses: actions/checkout@v3
-            - name: Receive the build artifact
-              uses: actions/download-artifact@v4
-              with:
-                name: test-results
-                path: ./test-results
-            - name: Show the artifact
-              run: |
-                ls -a
-                echo "Build artifact received"
-                echo "------------------------"
-                cat ./test-results/test-results.txt
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.x'
 
-            - name: InStall Node js
-              uses: actions/setup-node@v4
-              with:
-                node-version: '22'
+      - name: Install packages
+        run: npm install
 
-            - name: Install package
-              run: npm install
+      - name: Run tests
+        run: |
+          npm run check > test-results.txt
+          echo "Tests completed"
 
-            - name: Run the application
-              run: |
-                ls -a
-                pm2 status
-                pm2 delete node-app || true
-                pm2 start "npm start" --name "node-app"
-                pm2 save
-                
+      - name: Upload Test Results
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: test-results.txt
+
+  Deploy:
+    needs: Test
+    runs-on: self-hosted
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v3
+
+      - name: Download Test Results
+        uses: actions/download-artifact@v4
+        with:
+          name: test-results
+          path: ./test-results
+
+      - name: Display Test Results
+        run: |
+          echo "Build artifact received"
+          echo "------------------------"
+          cat ./test-results/test-results.txt
+
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.x'
+
+      - name: Install packages
+        run: npm install
+
+      - name: Deploy Application
+        run: |
+          pm2 status
+          pm2 delete node-app || true
+          pm2 start npm --name "node-app" -- start
+          pm2 save
