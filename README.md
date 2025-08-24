@@ -46,4 +46,61 @@ npm start
 2. **Default Port**: By Default this application will run on port 3000
 
 
+## 🚀AWS Setup Flow
 
+### Update system
+```bash
+   sudo apt update && sudo apt upgrade -y
+```
+### Install nginx
+```bash
+   sudo apt-get install nginx -y
+```
+### Setup GitHub Actions runner
+```bash
+   Follow GitHub runner Commands
+```
+### Install and start runner as service
+```bash
+   sudo ./svc.sh install
+   sudo ./svc.sh start
+```
+### Install Node.js LTS
+```bash
+curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash -
+sudo apt install -y nodejs
+```
+### Install PM2 Globally
+```bash
+sudo npm install -g pm2
+```
+
+### Configure Nginx (Port 80 → 3000)
+
+```bash 
+   sudo nano /etc/nginx/sites-available/default
+```
+
+### Replace contents with :
+
+```bash
+   server {
+    listen 80 default_server;
+    listen [::]:80 default_server;
+    server_name _;
+
+    location / {
+        proxy_pass http://127.0.0.1:3000;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}
+
+```
+### Reload Nginx
+```bash
+   sudo nginx -t
+   sudo systemctl reload nginx
+```
