@@ -31,7 +31,7 @@ describe('Server Tests', () => {
   });
 
   describe('GET /api', () => {
-    it('should return Hello World message', (done) => {
+    it('should return Hello Everyone message', (done) => {
       chai.request(server)
         .get('/api')
         .end((err, res) => {
